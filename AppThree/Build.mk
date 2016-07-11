@@ -31,7 +31,7 @@ endif
 
 
 .PHONY: build
-build: distclean config $(config) export
+build: distclean config build-app export
 	@set -e; \
 	echo "EXPORT_SYMBOL = ${EXPORT_SYMBOL}"; \
 	echo "Build Success !";
@@ -111,8 +111,8 @@ configurationSettings:
 
 
 # adhoc build
-.PHONY: build
-appone: install-profiles configurationSettings
+.PHONY: build-app
+build-app: install-profiles configurationSettings
 	@set -e ; \
 	echo "clean and making Archive ...\n" ${BUILD_CMD} ; \
 	xcodebuild -project ${PROJECT}.xcodeproj \
