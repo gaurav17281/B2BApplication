@@ -24,6 +24,7 @@ DERIVED_DATA := ${WORKING_DIRECTORY}/DerivedData
 DEFAULT_CONFIG := appone
 IS_BETA_BUILD := NO
 
+
 ifeq (${config},)
 config := ${DEFAULT_CONFIG}
 endif
@@ -41,14 +42,26 @@ config:
 	@set -e;
 ifeq (${config},appone)
 BUNDLE_IDENTIFIER := $(BUNDLE_IDENTIFIER_APP_ONE)
-UUID_PROFILE := UUID_APP_ONE
+UUID_PROFILE := ${UUID_APP_ONE}
 else ifeq (${config},apptwo)
 BUNDLE_IDENTIFIER := $(BUNDLE_IDENTIFIER_APP_TWO)
-UUID_PROFILE := UUID_APP_TWO
+UUID_PROFILE := ${UUID_APP_TWO}
 else ifeq (${config},appthree)
 BUNDLE_IDENTIFIER := $(BUNDLE_IDENTIFIER_APP_THREE)
-UUID_PROFILE := UUID_APP_THREE
+UUID_PROFILE := ${UUID_APP_THREE}
 endif
+
+BUILD_CMD := "xcodebuild -project ${PROJECT}.xcodeproj \
+	           -scheme ${SCHEME} \
+	           -configuration ${CONFIGURATION_RELEASE} \
+	           -archivePath ${WORKING_DIRECTORY}/Archive/${APP_NAME} \
+			   -derivedDataPath ${DERIVED_DATA}  \
+			   -IDEBuildOperationMaxNumberOfConcurrentCompileTasks=1 \
+	           \"PRODUCT_BUNDLE_IDENTIFIER =${BUNDLE_IDENTIFIER}\" \
+			   \"PROVISIONING_PROFILE=${UUID_PROFILE}\" \
+	           clean archive"
+
+
 
 .PHONY: clean
 clean: 
@@ -70,45 +83,46 @@ distclean: clean
 	@echo "Scrubbing working directory..." ; \
 	find * -type f \( -name ".DS_Store" -or -name "*.py[co]" \) -delete ; \
 	find * -type d \( -name "xcuserdata" -or -name "build" \) -prune -exec rm -rf "{}" \; ; \
-	find * -type d -empty -delete ; \
+	find * -type d -empty -delete ; 
 
 
 # copy the correct provisioning profiles to the xcode folder 
 .PHONY: install-profiles
 install-profiles: 
-	@echo "Installing Profiles..." ; \
-	cp BuildConfig/${UUID_PROFILE}.mobileprovision \
-	    ~/Library/MobileDevice/Provisioning\ Profiles/	
+	@set -e;\
+	echo "Installing Profiles..." ; \
+	cp BuildConfig/${UUID_PROFILE}.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/; \
+	echo "Profiles installed...";
+	
 
 # echo out the configuration settings for the build
 .PHONY: configurationSettings
 configurationSettings:
-	@echo Configuration settings: ;\
+	@set -e; \
+	echo "Configuration settings: ";\
 	echo "CONFIG  ${config} \n \
 		  BUILD_NUMBER  ${BUILD_NUMBER} \n \
-		  WORKSPACE  ${WORKSPACE} \n \
+		  WORKSPACE  ${PROJECT} \n \
 		  SCHEME ${SCHEME} \n \
 		  APP_NAME ${APP_NAME}\n \
 		  CONFIGURATION_RELEASE ${CONFIGURATION_RELEASE} \n \
 		  BUNDLE_IDENTIFIER ${BUNDLE_IDENTIFIER} \n \
-		  UUID_PROFILE ${UUID_PROFILE} \n | column -t;\
-	echo "\n";
+		  UUID_PROFILE ${UUID_PROFILE} \n "| column -t; \
 
 
 # adhoc build
 .PHONY: build
-build: install-profiles configurationSettings
+appone: install-profiles configurationSettings
 	@set -e ; \
-	echo "clean and making Archive ..." ; \
-	xcodebuild -project ${PROJECT}.xcproject \
+	echo "clean and making Archive ...\n" ${BUILD_CMD} ; \
+	xcodebuild -project ${PROJECT}.xcodeproj \
 	           -scheme ${SCHEME} \
 	           -configuration ${CONFIGURATION_RELEASE} \
 	           -archivePath ${WORKING_DIRECTORY}/Archive/${APP_NAME} \
 			   -derivedDataPath ${DERIVED_DATA}  \
 			   -IDEBuildOperationMaxNumberOfConcurrentCompileTasks=1 \
 	           "PRODUCT_BUNDLE_IDENTIFIER =${BUNDLE_IDENTIFIER}" \
-			   "PROVISIONING_PROFILE=${UUID_PROFILE}" \
-	           clean archive
+			   "PROVISIONING_PROFILE=${UUID_PROFILE}";
 
 
 # export to ipa
