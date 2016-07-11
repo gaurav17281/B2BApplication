@@ -3,7 +3,7 @@ CONFIGURATION_RELEASE  := Release
 # Mark the scheme as shared by going to manage schemes in xcode
 PROJECT := AppThree
 SCHEME := AppThree
-APP_NAME := B2BSample
+APP_NAME := AppThree
 
 BUNDLE_IDENTIFIER_APP_ONE := com.b2b.appone
 BUNDLE_IDENTIFIER_APP_TWO := com.b2b.apptwo

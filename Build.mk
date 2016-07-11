@@ -51,7 +51,7 @@ BUNDLE_IDENTIFIER := $(BUNDLE_IDENTIFIER_APP_THREE)
 UUID_PROFILE := ${UUID_APP_THREE}
 endif
 
-BUILD_CMD := "xcodebuild -project ${PROJECT}.xcodeproj \
+BUILD_CMD := "xcodebuild -project ${APP_NAME}/${PROJECT}.xcodeproj \
 	           -scheme ${SCHEME} \
 	           -configuration ${CONFIGURATION_RELEASE} \
 	           -archivePath ${WORKING_DIRECTORY}/Archive/${APP_NAME} \
@@ -115,7 +115,7 @@ configurationSettings:
 build-app: install-profiles configurationSettings
 	@set -e ; \
 	echo "clean and making Archive ...\n" ${BUILD_CMD} ; \
-	xcodebuild -project ${PROJECT}.xcodeproj \
+	xcodebuild -project ${APP_NAME}/${PROJECT}.xcodeproj \
 	           -scheme ${SCHEME} \
 	           -configuration ${CONFIGURATION_RELEASE} \
 	           -archivePath ${WORKING_DIRECTORY}/Archive/${APP_NAME} \
